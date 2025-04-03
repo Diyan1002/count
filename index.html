@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern Countdown Timer</title>
+  <style>
+    :root {
+      --blue: #4695C6;
+      --green: #6BA552;
+      --dark: #1A1A1A;
+      --light: #F5F5F5;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background-color: var(--dark);
+      color: var(--light);
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .bg-particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+    
+    .particle {
+      position: absolute;
+      background: linear-gradient(135deg, var(--blue), var(--green));
+      border-radius: 50%;
+      opacity: 0;
+      animation: float 15s linear infinite;
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) scale(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.3;
+      }
+      90% {
+        opacity: 0.3;
+      }
+      100% {
+        transform: translateY(-20vh) scale(1);
+        opacity: 0;
+      }
+    }
+    
+    .container {
+      text-align: center;
+      padding: 2rem;
+      max-width: 800px;
+      width: 90%;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      background: linear-gradient(135deg, var(--blue), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+    }
+    
+    .countdown {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    }
+    
+    .countdown-item {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      perspective: 1000px;
+    }
+    
+    .countdown-card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .countdown-card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+      font-weight: 700;
+    }
+    
+    .countdown-card-front {
+      background: linear-gradient(135deg, var(--blue), var(--green));
+      color: white;
+    }
+    
+    .countdown-card-back {
+      background: linear-gradient(135deg, var(--green), var(--blue));
+      color: white;
+      transform: rotateY(180deg);
+    }
+    
+    .countdown-label {
+      position: absolute;
+      bottom: -30px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgba(245, 245, 245, 0.7);
+    }
+    
+    .progress-container {
+      width: 100%;
+      max-width: 500px;
+      height: 8px;
+      background: rgba(245, 245, 245, 0.1);
+      border-radius: 4px;
+      margin: 2rem auto;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--green));
+      border-radius: 4px;
+      width: 100%;
+      transition: width 0.5s ease;
+    }
+    
+    .message {
+      font-size: 1.5rem;
+      margin-top: 2rem;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease;
+      background: linear-gradient(135deg, var(--blue), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 600;
+    }
+    
+    .message.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      
+      .countdown {
+        gap: 1rem;
+      }
+      
+      .countdown-item {
+        width: 80px;
+        height: 80px;
+      }
+      
+      .countdown-card-face {
+        font-size: 2.5rem;
+      }
+      
+      .countdown-label {
+        font-size: 0.7rem;
+        bottom: -25px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-particles" id="particles"></div>
+  
+  <div class="container">
+    <h1>Countdown to Launch</h1>
+    
+    <div class="countdown">
+      <div class="countdown-item">
+        <div class="countdown-card" id="days-card">
+          <div class="countdown-card-face countdown-card-front">00</div>
+          <div class="countdown-card-face countdown-card-back">00</div>
+        </div>
+        <div class="countdown-label">Days</div>
+      </div>
+      
+      <div class="countdown-item">
+        <div class="countdown-card" id="hours-card">
+          <div class="countdown-card-face countdown-card-front">00</div>
+          <div class="countdown-card-face countdown-card-back">00</div>
+        </div>
+        <div class="countdown-label">Hours</div>
+      </div>
+      
+      <div class="countdown-item">
+        <div class="countdown-card" id="minutes-card">
+          <div class="countdown-card-face countdown-card-front">00</div>
+          <div class="countdown-card-face countdown-card-back">00</div>
+        </div>
+        <div class="countdown-label">Minutes</div>
+      </div>
+      
+      <div class="countdown-item">
+        <div class="countdown-card" id="seconds-card">
+          <div class="countdown-card-face countdown-card-front">00</div>
+          <div class="countdown-card-face countdown-card-back">00</div>
+        </div>
+        <div class="countdown-label">Seconds</div>
+      </div>
+    </div>
+    
+    <div class="progress-container">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    
+    <div class="message" id="message">Prepare for something amazing!</div>
+  </div>
+
+  <script>
+    // Create floating particles
+    function createParticles() {
+      const container = document.getElementById('particles');
+      const particleCount = 20;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // Random size between 5px and 15px
+        const size = Math.random() * 10 + 5;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // Random position
+        particle.style.left = `${Math.random() * 100}vw`;
+        
+        // Random animation duration between 10s and 20s
+        const duration = Math.random() * 10 + 10;
+        particle.style.animationDuration = `${duration}s`;
+        
+        // Random delay
+        particle.style.animationDelay = `${Math.random() * 5}s`;
+        
+        container.appendChild(particle);
+      }
+    }
+    
+    // Initialize countdown
+    function startCountdown() {
+      // Set the target date (7 days from now)
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + 7);
+      
+      // Get countdown elements
+      const daysCard = document.getElementById('days-card');
+      const hoursCard = document.getElementById('hours-card');
+      const minutesCard = document.getElementById('minutes-card');
+      const secondsCard = document.getElementById('seconds-card');
+      const progressBar = document.getElementById('progress-bar');
+      const message = document.getElementById('message');
+      
+      // Initial values
+      let days = 7;
+      let hours = 0;
+      let minutes = 0;
+      let seconds = 0;
+      
+      // Set initial display
+      updateDisplay();
+      
+      // Show initial message
+      setTimeout(() => {
+        message.classList.add('visible');
+      }, 1000);
+      
+      // Start countdown
+      const countdownInterval = setInterval(() => {
+        // Decrease time
+        if (seconds > 0) {
+          seconds--;
+        } else {
+          seconds = 59;
+          if (minutes > 0) {
+            minutes--;
+          } else {
+            minutes = 59;
+            if (hours > 0) {
+              hours--;
+            } else {
+              hours = 23;
+              if (days > 0) {
+                days--;
+                flipCard(daysCard);
+              }
+            }
+            flipCard(hoursCard);
+          }
+          flipCard(minutesCard);
+        }
+        flipCard(secondsCard);
+        
+        // Update display
+        updateDisplay();
+        
+        // Update progress bar
+        const totalSeconds = days * 86400 + hours * 3600 + minutes * 60 + seconds;
+        const initialTotal = 7 * 86400;
+        const progress = ((initialTotal - totalSeconds) / initialTotal) * 100;
+        progressBar.style.width = `${progress}%`;
+        
+        // Change message based on progress
+        if (days === 0 && hours < 12) {
+          message.textContent = "Almost there! Get ready!";
+        }
+        
+        // Check if countdown is finished
+        if (days === 0 && hours === 0 && minutes === 0 && seconds === 0) {
+          clearInterval(countdownInterval);
+          message.textContent = "We're live! Let's go!";
+          celebrate();
+        }
+      }, 1000);
+      
+      function updateDisplay() {
+        daysCard.querySelector('.countdown-card-front').textContent = 
+        daysCard.querySelector('.countdown-card-back').textContent = 
+          days.toString().padStart(2, '0');
+        
+        hoursCard.querySelector('.countdown-card-front').textContent = 
+        hoursCard.querySelector('.countdown-card-back').textContent = 
+          hours.toString().padStart(2, '0');
+        
+        minutesCard.querySelector('.countdown-card-front').textContent = 
+        minutesCard.querySelector('.countdown-card-back').textContent = 
+          minutes.toString().padStart(2, '0');
+        
+        secondsCard.querySelector('.countdown-card-front').textContent = 
+        secondsCard.querySelector('.countdown-card-back').textContent = 
+          seconds.toString().padStart(2, '0');
+      }
+      
+      function flipCard(card) {
+        card.style.transform = 'rotateY(180deg)';
+        setTimeout(() => {
+          card.style.transform = 'rotateY(0deg)';
+        }, 800);
+      }
+      
+      function celebrate() {
+        // Create celebration particles
+        for (let i = 0; i < 50; i++) {
+          const particle = document.createElement('div');
+          particle.classList.add('particle');
+          particle.style.background = i % 2 === 0 ? '#4695C6' : '#6BA552';
+          
+          // Random size between 5px and 10px
+          const size = Math.random() * 5 + 5;
+          particle.style.width = `${size}px`;
+          particle.style.height = `${size}px`;
+          
+          // Random position
+          particle.style.left = `${Math.random() * 100}vw`;
+          particle.style.bottom = '0';
+          
+          // Random animation duration between 2s and 4s
+          const duration = Math.random() * 2 + 2;
+          particle.style.animationDuration = `${duration}s`;
+          particle.style.animationName = 'celebrate';
+          particle.style.animationTimingFunction = 'cubic-bezier(0.1, 0.8, 0.9, 1)';
+          
+          document.getElementById('particles').appendChild(particle);
+          
+          // Remove after animation
+          setTimeout(() => {
+            particle.remove();
+          }, duration * 1000);
+        }
+        
+        // Add celebrate animation
+        const style = document.createElement('style');
+        style.textContent = `
+          @keyframes celebrate {
+            0% {
+              transform: translateY(0) scale(1);
+              opacity: 1;
+            }
+            100% {
+              transform: translateY(-100vh) scale(0);
+              opacity: 0;
+            }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }
+    
+    // Initialize everything when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      createParticles();
+      startCountdown();
+    });
+  </script>
+</body>
+</html>
